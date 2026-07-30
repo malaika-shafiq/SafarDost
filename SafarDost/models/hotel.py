@@ -1,0 +1,17 @@
+from database import Base
+from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy.orm import relationship
+
+
+class Hotels(Base):
+    __tablename__ = "hotels"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    location = Column(String)
+    price_per_night = Column(Integer)  # Stored nightly rate in PKR
+    rating = Column(Float, default=0.0)
+    image = Column(String)  # Cloudinary image link
+
+    # Relational link: Connects a hotel to its incoming reviews
+    reviews = relationship("Reviews", back_populates="hotel")
