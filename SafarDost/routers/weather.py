@@ -8,14 +8,14 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models.weather import WeatherCache
 from schemas.weather_schemas import WeatherResponse, WeatherPurgeResponse
-from utils.auth_utils import get_current_user  # Your existing security dependency
+from utils.auth_utils import get_current_user  # existing security dependency
 
 router = APIRouter(prefix="", tags=["Weather Services"])
 
 
 @router.get("/weather", response_model=WeatherResponse)
 def get_weather(city: str, force_refresh: bool = False, db: Session = Depends(get_db)):
-    # 1. Search local SQLite database using your case-insensitive partial match pattern
+    # 1. Search local SQLite database using case-insensitive partial match pattern
     local_record = db.query(WeatherCache).filter(WeatherCache.city_name.ilike(f"%{city}%")).first()
 
     # 2. Modern Time Check (Only skipped if the user passes force_refresh=True)
@@ -64,7 +64,7 @@ def get_weather(city: str, force_refresh: bool = False, db: Session = Depends(ge
     extracted_condition = weather_data["current"]["condition"]["text"]
     extracted_humidity = weather_data["current"]["humidity"]
 
-    # 5. Save fresh data using your up-to-date time strategy
+    # 5. Save fresh data using up-to-date time strategy
     current_utc_now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 
     if local_record:

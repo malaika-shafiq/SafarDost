@@ -14,7 +14,7 @@ class Reviews(Base):
     image_url = Column(String, nullable=True)  # Optional photo attachment URL
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
-    # Foreign Key tracking who wrote the review (Exactly like your owner_id in Todos)
+    # Foreign Key tracking who wrote the review (Exactly like owner_id in Todos)
     user_id = Column(Integer, ForeignKey("users.id"))
 
     # Target Foreign Keys linking to what is being reviewed (All are optional/nullable)

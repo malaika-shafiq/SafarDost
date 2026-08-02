@@ -18,7 +18,7 @@ class PlaceUpdate(BaseModel):
 class PlaceResponse(BaseModel):
     id: int
     name: str
-    location: str      # Matches your table column exactly
+    location: str      # Matches table column exactly
     category: str      # e.g., "Lake", "Fort", "Valley"
     description: str
     image: Optional[str] = None  # Holds the image link/URL string for the mobile app

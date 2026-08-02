@@ -11,7 +11,7 @@ class HotelBookings(Base):
     check_in_date = Column(Date, nullable=False)
     check_out_date = Column(Date, nullable=False)
     total_price = Column(Integer, nullable=False)  # Automatically calculated rate in PKR
-    # Enforces explicit timezone support inside your SQLite engine configuration
+    # Enforces explicit timezone support inside SQLite engine configuration
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     # Foreign Key tracking references

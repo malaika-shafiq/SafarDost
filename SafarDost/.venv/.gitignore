@@ -1,0 +1,16 @@
+# Keep your hidden passwords out of git
+.env
+
+# Hide background system speed-cache files
+__pycache__/
+*.pyc
+
+# Hide the local SQLite database binary file
+safardost.db
+
+# Hide PyCharm configuration drafts
+.idea/
+
+PythonProject/
+TodoApp/
+*.db

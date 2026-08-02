@@ -234,7 +234,7 @@ def update_restaurant_table_reservation(booking_id: int, booking_request: bookin
 @router.delete("/restaurant/{booking_id}", status_code=status.HTTP_204_NO_CONTENT)
 def cancel_restaurant_reservation(booking_id: int, db: db_dependency, current_user: user_dependency):
     """
-    Permanently deletes a restaurant table booking from your database cache layer.
+    Permanently deletes a restaurant table booking from database cache layer.
     """
     db_booking = db.query(RestaurantBookings).filter(RestaurantBookings.id == booking_id).first()
     if not db_booking:

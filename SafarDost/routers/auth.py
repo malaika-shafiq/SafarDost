@@ -35,8 +35,8 @@ def register_user(user_request: auth_schemas.UserCreate, db: db_dependency):
     input_role = user_request.role.strip().lower() if user_request.role else "traveler"
 
     # 2. PROD SAFETY GUARD: Prevents malicious users from registering as administrators.
-    # Note: When creating your very first admin profile, change True to False temporarily,
-    # run your signup request via Thunder Client, then set it back to True to lock the system down!
+    # Note: When creating very first admin profile, change True to False temporarily,
+    # run signup request via Thunder Client, then set it back to True to lock the system down!
     if input_role == "admin" and True:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -48,11 +48,11 @@ def register_user(user_request: auth_schemas.UserCreate, db: db_dependency):
     plain_password = user_payload.pop("password")
     user_payload.pop("role", None)  # Safeguards against missing disk column exceptions
 
-    # Explicit mapping architecture matching your column fields precisely
+    # Explicit mapping architecture matching the column fields precisely
     db_user = Users(
         **user_payload,
         hashed_password=hash_password(plain_password),
-        role=input_role  # Injected directly into your SQLAlchemy attribute hook safely
+        role=input_role  # Injected directly into SQLAlchemy attribute hook safely
     )
 
     db.add(db_user)
@@ -182,10 +182,10 @@ def change_user_password(password_request: PasswordUpdate, current_user: user_de
             detail="Current password verification failed. Please try again."
         )
 
-    # 3. Scramble the new password using your clean utility helper
+    # 3. Scramble the new password using clean utility helper
     user.hashed_password = hash_password(password_request.new_password)
 
-    # 4. Save updates into your local SQLite file
+    # 4. Save updates into local SQLite file
     db.add(user)
     db.commit()
 
@@ -207,7 +207,7 @@ def get_current_user_profile(current_user: user_dependency, db: db_dependency):
             detail="User profile not found."
         )
 
-    # 3. Return the database user row, which automatically mirrors your clean UserResponse schema shape
+    # 3. Return the database user row, which automatically mirrors clean UserResponse schema shape
     return user
 
 
