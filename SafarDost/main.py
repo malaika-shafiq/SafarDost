@@ -2,9 +2,14 @@ from fastapi import FastAPI
 import models
 from database import engine
 from routers import auth, places, reviews, hotels, restaurants, weather, ai_recommend
-import models.ai_history
 
-app = FastAPI()
+# Initialize your core app service cleanly
+app = FastAPI(
+    title="Safardost API Platform",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url=None
+)
 
 models.Base.metadata.create_all(bind=engine)
 
