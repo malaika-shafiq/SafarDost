@@ -117,7 +117,7 @@ def login_user_for_swagger(form_data: OAuth2PasswordRequestForm = Depends(), db:
             detail="Invalid email or password."
         )
 
-    # 1. Generate a standard short access token containing your role mappings
+    # 1. Generate a standard short access token containing role mappings
     access_token = generate_access_token(
         email=str(user.email),
         user_id=int(user.id),
@@ -125,7 +125,7 @@ def login_user_for_swagger(form_data: OAuth2PasswordRequestForm = Depends(), db:
         expires_delta=timedelta(minutes=15)
     )
 
-    # 2. ADDED BACK: Generate the 30-day long refresh token to keep your DB state perfect
+    # 2. Generate the 30-day long refresh token to keep your DB state perfect
     refresh_token = generate_refresh_token(
         email=str(user.email),
         user_id=int(user.id),
@@ -137,9 +137,10 @@ def login_user_for_swagger(form_data: OAuth2PasswordRequestForm = Depends(), db:
     db.add(user)
     db.commit()
 
-    # 4. Return the explicit token dictionary layout that Swagger's padlock system requires
+    # 4. FIX APPLIED: Return ALL matching data keys to satisfy Pydantic's TokenResponse model fields
     return {
         "access_token": str(access_token),
+        "refresh_token": str(refresh_token),  # Added key to prevent schema validation failures!
         "token_type": "bearer"
     }
 
