@@ -18,7 +18,8 @@ SECRET_KEY = os.environ.get("SAFARDOST_SECRET_KEY")
 ALGORITHM = os.environ.get("ALGORITHM", "HS256")
 
 # This looks for the "Authorization: Bearer <token>" header automatically
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/login")
+#oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/login/swagger")
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -28,8 +29,8 @@ def hash_password(password: str):
     return bcrypt_context.hash(password)
 
 
-def authenticate_traveler(email: EmailStr, password: str, db: Session):
-    """Checks credentials against your user database table fields."""
+def authenticate_traveler(email: str, password: str, db: Session):
+    """Checks credentials against user database table fields."""
     user = db.query(Users).filter(Users.email == email).first()
 
     if not user:
@@ -41,7 +42,7 @@ def authenticate_traveler(email: EmailStr, password: str, db: Session):
     return user
 
 
-def generate_access_token(email: EmailStr, user_id: int, role: str, expires_delta: timedelta):
+def generate_access_token(email: str, user_id: int, role: str, expires_delta: timedelta):
     """Signs a short-lived access token containing role scopes."""
     token_expiry = datetime.now(timezone.utc) + expires_delta
     token_claims = {
@@ -76,7 +77,7 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         detail="Could not validate credentials."
     )
     try:
-        # Decode the token using your secret application key
+        # Decode the token using secret application key
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
         email: EmailStr = payload.get("sub")

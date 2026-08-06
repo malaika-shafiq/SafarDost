@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import Annotated
 from jose import JWTError, jwt
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm  # ADDED THIS IMPORT FOR SWAGGER UI LOGIN
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from database import get_db
@@ -99,6 +100,49 @@ def login_user(login_request: auth_schemas.UserLogin, db: db_dependency):
         "refresh_token": refresh_token,
         "token_type": "bearer"
     }
+
+@router.post("/login/swagger", include_in_schema=True)
+def login_user_for_swagger(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """
+    Dedicated authentication route specifically for Swagger UI's Authorize dialog form box.
+    """
+    input_email = str(form_data.username).strip()
+    input_password = str(form_data.password)
+
+    user = authenticate_traveler(input_email, input_password, db)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password."
+        )
+
+    # 1. Generate a standard short access token containing your role mappings
+    access_token = generate_access_token(
+        email=str(user.email),
+        user_id=int(user.id),
+        role=str(getattr(user, "role", "traveler")),
+        expires_delta=timedelta(minutes=15)
+    )
+
+    # 2. ADDED BACK: Generate the 30-day long refresh token to keep your DB state perfect
+    refresh_token = generate_refresh_token(
+        email=str(user.email),
+        user_id=int(user.id),
+        expires_delta=timedelta(days=30)
+    )
+
+    # 3. Save the token state down to your users table in SQLite
+    user.current_refresh_token = refresh_token
+    db.add(user)
+    db.commit()
+
+    # 4. Return the explicit token dictionary layout that Swagger's padlock system requires
+    return {
+        "access_token": str(access_token),
+        "token_type": "bearer"
+    }
+
 
 
 @router.post("/refresh", status_code=status.HTTP_200_OK)

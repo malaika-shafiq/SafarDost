@@ -8,7 +8,7 @@ def send_vendor_booking_email(booking_id: int, hotel_name: str, location: str, c
                               total_price: int, customer_email: str):
     """
     Synchronous utility helper that securely transmits a detailed reservation
-    alert email directly to your management operations desk.
+    alert email directly to management operations desk.
     """
     try:
         email_body = f"""
