@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 import models
 from database import engine
-from routers import auth, places, reviews, hotels, restaurants, weather, ai_recommend
+from routers import auth, places, reviews, hotels, restaurants
+from routers.services import weather, ai_recommend
 
 # Initialize your core app service cleanly
 app = FastAPI(
