@@ -68,8 +68,15 @@ def get_restaurant_by_id(restaurant_id: int, db: db_dependency):
 def create_restaurant(restaurant_request: restaurant_schemas.RestaurantCreate, db: db_dependency,
                       current_admin: admin_dependency):
     """
-    Adds a brand new restaurant to the database. Strictly restricted to Admin users.
+    Adds a brand-new restaurant to the database. Strictly restricted to Admin users.
     """
+    # 🔒 SECURE CHECK: Stop regular users from adding new restaurants to the directory
+    if current_admin.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrative privileges are required to register new restaurants."
+        )
+
     # Map incoming JSON fields directly to your SQLAlchemy table columns via unpacking mapping
     db_restaurant = Restaurants(**restaurant_request.model_dump())
 
@@ -79,13 +86,19 @@ def create_restaurant(restaurant_request: restaurant_schemas.RestaurantCreate, d
 
     return db_restaurant
 
-
 @router.put("/{restaurant_id}", response_model=restaurant_schemas.RestaurantResponse, status_code=status.HTTP_200_OK)
 def update_restaurant(restaurant_id: int, restaurant_request: restaurant_schemas.RestaurantUpdate, db: db_dependency,
                       current_admin: admin_dependency):
     """
     Modifies specific mutable fields of an existing restaurant record dynamically. Strictly restricted to Admin users.
     """
+    # 🔒 SECURE CHECK: Prevent non-admin users from updating menus, tiers, or details
+    if current_admin.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrative privileges are required to modify restaurant metadata."
+        )
+
     db_restaurant = db.query(Restaurants).filter(Restaurants.id == restaurant_id).first()
 
     if not db_restaurant:
@@ -108,6 +121,13 @@ def delete_restaurant(restaurant_id: int, db: db_dependency, current_admin: admi
     """
     Removes a restaurant record permanently from the database. Strictly restricted to Admin users.
     """
+    # 🔒 SECURE CHECK: Protect dinner listings from unauthorized deletion requests
+    if current_admin.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrative privileges are required to purge restaurant records."
+        )
+
     db_restaurant = db.query(Restaurants).filter(Restaurants.id == restaurant_id).first()
 
     if not db_restaurant:

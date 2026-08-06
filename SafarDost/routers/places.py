@@ -80,6 +80,13 @@ def create_tourist_place(place_request: place_schemas.PlaceCreate, db: db_depend
     """
     Adds a brand new iconic Pakistani tourist destination to the database. Strictly restricted to Admin users.
     """
+    # 🔒 SECURE CHECK: Block regular users from publishing new tourist spots
+    if current_admin.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrative privileges are required to register new tourist destinations."
+        )
+
     db_place = Places(**place_request.model_dump())
 
     db.add(db_place)
@@ -94,6 +101,13 @@ def update_tourist_place(place_id: int, place_request: place_schemas.PlaceUpdate
     """
     Modifies an existing tourist place's attributes dynamically. Strictly restricted to Admin users.
     """
+    # 🔒 SECURE CHECK: Stop unauthorized accounts from altering landmark details
+    if current_admin.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrative privileges are required to modify destination information."
+        )
+
     db_place = db.query(Places).filter(Places.id == place_id).first()
 
     if not db_place:
@@ -111,11 +125,19 @@ def update_tourist_place(place_id: int, place_request: place_schemas.PlaceUpdate
     return db_place
 
 
+
 @router.delete("/{place_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_tourist_place(place_id: int, db: db_dependency, current_admin: admin_dependency):
     """
     Permanently deletes a tourist destination from the database. Strictly restricted to Admin users.
     """
+    # 🔒 SECURE CHECK: Prevent normal users from wiping out locations from SQLite
+    if current_admin.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrative privileges are required to remove destinations from the platform."
+        )
+
     db_place = db.query(Places).filter(Places.id == place_id).first()
 
     if not db_place:
